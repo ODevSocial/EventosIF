@@ -12,13 +12,15 @@ export default function TelaEventos({ navigation }) {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const [enviado, setEnviado] = useState(false);
-
   const [busca, setBusca] = useState('');
-  const [eventosFiltrados, setEventosFiltrados] = useState([]);
-
   const [inscricoes, setInscricoes] = useState([]);
-  const [totalInscricoes, setTotalInscricoes] = useState(0);
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
+
+  // R1: Cálculo direto na renderização (sem useEffect nem useState para estes dois)
+  const eventosFiltrados = eventos.filter((ev) =>
+    ev.titulo.toLowerCase().includes(busca.toLowerCase())
+  );
+  const totalInscricoes = inscricoes.length;
 
   useEffect(() => {
     fetch('https://api.campus.iftm.edu.br/eventos')
@@ -32,18 +34,6 @@ export default function TelaEventos({ navigation }) {
       });
   }, []);
 
-  useEffect(() => {
-    setEventosFiltrados(
-      eventos.filter((ev) =>
-        ev.titulo.toLowerCase().includes(busca.toLowerCase())
-      )
-    );
-  }, [busca, eventos]);
-
-  useEffect(() => {
-    setTotalInscricoes(inscricoes.length);
-  }, [inscricoes]);
-
   function inscrever(evento) {
     inscricoes.push(evento);
     setInscricoes(inscricoes);
@@ -54,8 +44,7 @@ export default function TelaEventos({ navigation }) {
   console.log('[render] TelaEventos');
 
   return (
-    <View style={[styles.container,
-      { backgroundColor: temaEscuro ? '#121212' : '#FFFFFF' }]}>
+    <View style={[styles.container, { backgroundColor: temaEscuro ? '#121212' : '#FFFFFF' }]}>
       <Text style={styles.contador}>Inscrições: {totalInscricoes}</Text>
       <TextInput
         style={styles.campo}
@@ -66,9 +55,7 @@ export default function TelaEventos({ navigation }) {
       {carregando && <ActivityIndicator size="large" />}
       {erro && <Text style={styles.erro}>Falha: {erro}</Text>}
       {enviado && eventoSelecionado && (
-        <Text style={styles.aviso}>
-          Inscrição confirmada em {eventoSelecionado.titulo}
-        </Text>
+        <Text style={styles.aviso}>Inscrição confirmada em {eventoSelecionado.titulo}</Text>
       )}
       <FlatList
         data={eventosFiltrados}
@@ -77,8 +64,7 @@ export default function TelaEventos({ navigation }) {
           <CartaoEvento
             evento={item}
             aoInscrever={() => inscrever(item)}
-            aoAbrir={() =>
-              navigation.navigate('Detalhe', { evento: item })}
+            aoAbrir={() => navigation.navigate('Detalhe', { evento: item })}
           />
         )}
       />
@@ -89,8 +75,7 @@ export default function TelaEventos({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
   contador: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
-  campo: { borderWidth: 1, borderColor: '#CCCCCC', borderRadius: 8,
-           padding: 10, marginBottom: 12 },
+  campo: { borderWidth: 1, borderColor: '#CCCCCC', borderRadius: 8, padding: 10, marginBottom: 12 },
   erro: { color: '#B00020', marginBottom: 8 },
   aviso: { color: '#2E7D32', marginBottom: 8 },
 });
