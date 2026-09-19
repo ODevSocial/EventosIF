@@ -35,8 +35,11 @@ export default function TelaEventos({ navigation }) {
   }, []);
 
   function inscrever(evento) {
-    inscricoes.push(evento);
-    setInscricoes(inscricoes);
+    setInscricoes((anteriores) => {
+      const jaInscrito = anteriores.some((item) => item.id === evento.id);
+      if (jaInscrito) return anteriores;
+      return [...anteriores, evento];
+    });
     setEventoSelecionado(evento);
     setEnviado(true);
   }
@@ -61,12 +64,12 @@ export default function TelaEventos({ navigation }) {
         data={eventosFiltrados}
         keyExtractor={(itemLista) => String(itemLista.id)}
         renderItem={({ item }) => (
-          <CartaoEvento
-            evento={item}
-            aoInscrever={() => inscrever(item)}
-            aoAbrir={() => navigation.navigate('Detalhe', { evento: item })}
-          />
-        )}
+  <CartaoEvento
+    evento={item}
+    aoInscrever={() => inscrever(item)}
+    aoAbrir={() => navigation.navigate('Detalhe', { eventoId: item.id, eventos })}
+  />
+)}
       />
     </View>
   );

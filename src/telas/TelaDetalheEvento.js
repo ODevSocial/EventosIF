@@ -1,7 +1,16 @@
 import { View, Text, StyleSheet } from 'react-native';
 
 export default function TelaDetalheEvento({ route }) {
-  const { evento } = route.params;
+  const { eventoId, eventos = [] } = route.params || {};
+  const evento = eventos.find((e) => e.id === eventoId);
+
+  if (!evento) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.texto}>Evento não encontrado.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
