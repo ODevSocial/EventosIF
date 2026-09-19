@@ -1,11 +1,10 @@
-import { useState, useEffect, useContext, useReducer } from 'react';
+import { useState, useEffect, useContext, useReducer, useCallback } from 'react';
 import {
   View, Text, TextInput, FlatList, ActivityIndicator, StyleSheet,
 } from 'react-native';
 import { AppContexto } from '../contextos/AppContexto';
 import CartaoEvento from '../componentes/CartaoEvento';
 
-// R5: Estado inicial e Reducer para gerir o ciclo de vida da requisição
 const estadoInicial = {
   eventos: [],
   carregando: true,
@@ -26,7 +25,6 @@ function eventosReducer(estado, acao) {
 export default function TelaEventos({ navigation }) {
   const { temaEscuro, inscricoes, inscrever: inscreverNoContexto } = useContext(AppContexto);
 
-  // R5: Múltiplos useState substituídos por useReducer
   const [estadoEventos, dispatch] = useReducer(eventosReducer, estadoInicial);
   const { eventos, carregando, erro } = estadoEventos;
 
@@ -50,11 +48,16 @@ export default function TelaEventos({ navigation }) {
       });
   }, []);
 
-  function inscrever(evento) {
+  // R6: Funções memorizadas para manter referência estável entre renderizações
+  const handleInscrever = useCallback((evento) => {
     inscreverNoContexto(evento);
     setEventoSelecionado(evento);
     setEnviado(true);
-  }
+  }, [inscreverNoContexto]);
+
+  const handleAbrir = useCallback((eventoId) => {
+    navigation.navigate('Detalhe', { eventoId, eventos });
+  }, [navigation, eventos]);
 
   console.log('[render] TelaEventos');
 
@@ -78,8 +81,8 @@ export default function TelaEventos({ navigation }) {
         renderItem={({ item }) => (
           <CartaoEvento
             evento={item}
-            aoInscrever={() => inscrever(item)}
-            aoAbrir={() => navigation.navigate('Detalhe', { eventoId: item.id, eventos })}
+            aoInscrever={() => handleInscrever(item)}
+            aoAbrir={() => handleAbrir(item.id)}
           />
         )}
       />
