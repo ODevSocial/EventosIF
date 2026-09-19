@@ -6,17 +6,16 @@ import { AppContexto } from '../contextos/AppContexto';
 import CartaoEvento from '../componentes/CartaoEvento';
 
 export default function TelaEventos({ navigation }) {
-  const { temaEscuro } = useContext(AppContexto);
+  // Consumindo do contexto global:
+  const { temaEscuro, inscricoes, inscrever: inscreverNoContexto } = useContext(AppContexto);
 
   const [eventos, setEventos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
   const [enviado, setEnviado] = useState(false);
   const [busca, setBusca] = useState('');
-  const [inscricoes, setInscricoes] = useState([]);
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
 
-  // R1: Cálculo direto na renderização (sem useEffect nem useState para estes dois)
   const eventosFiltrados = eventos.filter((ev) =>
     ev.titulo.toLowerCase().includes(busca.toLowerCase())
   );
@@ -35,11 +34,7 @@ export default function TelaEventos({ navigation }) {
   }, []);
 
   function inscrever(evento) {
-    setInscricoes((anteriores) => {
-      const jaInscrito = anteriores.some((item) => item.id === evento.id);
-      if (jaInscrito) return anteriores;
-      return [...anteriores, evento];
-    });
+    inscreverNoContexto(evento);
     setEventoSelecionado(evento);
     setEnviado(true);
   }

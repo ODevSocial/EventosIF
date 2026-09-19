@@ -1,12 +1,9 @@
-import { useState } from 'react';
+import { useContext } from 'react';
 import { View, Text, FlatList, Button, StyleSheet } from 'react-native';
+import { AppContexto } from '../contextos/AppContexto';
 
 export default function TelaMinhasInscricoes() {
-  const [inscricoes, setInscricoes] = useState([]);
-
-  function cancelar(id) {
-    setInscricoes(inscricoes.filter((i) => i.id !== id));
-  }
+  const { inscricoes, cancelarInscricao } = useContext(AppContexto);
 
   console.log('[render] TelaMinhasInscricoes');
 
@@ -21,8 +18,10 @@ export default function TelaMinhasInscricoes() {
         renderItem={({ item }) => (
           <View style={styles.linha}>
             <Text>{item.titulo}</Text>
-            <Button title="Cancelar"
-                    onPress={() => cancelar(item.id)} />
+            <Button
+              title="Cancelar"
+              onPress={() => cancelarInscricao(item.id)}
+            />
           </View>
         )}
       />
