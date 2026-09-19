@@ -1,17 +1,35 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useReducer } from 'react';
 import {
   View, Text, TextInput, FlatList, ActivityIndicator, StyleSheet,
 } from 'react-native';
 import { AppContexto } from '../contextos/AppContexto';
 import CartaoEvento from '../componentes/CartaoEvento';
 
+// R5: Estado inicial e Reducer para gerir o ciclo de vida da requisição
+const estadoInicial = {
+  eventos: [],
+  carregando: true,
+  erro: null,
+};
+
+function eventosReducer(estado, acao) {
+  switch (acao.tipo) {
+    case 'FETCH_SUCESSO':
+      return { ...estado, carregando: false, eventos: acao.payload, erro: null };
+    case 'FETCH_ERRO':
+      return { ...estado, carregando: false, erro: acao.payload };
+    default:
+      return estado;
+  }
+}
+
 export default function TelaEventos({ navigation }) {
-  // Consumindo do contexto global:
   const { temaEscuro, inscricoes, inscrever: inscreverNoContexto } = useContext(AppContexto);
 
-  const [eventos, setEventos] = useState([]);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState(null);
+  // R5: Múltiplos useState substituídos por useReducer
+  const [estadoEventos, dispatch] = useReducer(eventosReducer, estadoInicial);
+  const { eventos, carregando, erro } = estadoEventos;
+
   const [enviado, setEnviado] = useState(false);
   const [busca, setBusca] = useState('');
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
@@ -25,11 +43,10 @@ export default function TelaEventos({ navigation }) {
     fetch('https://api.campus.iftm.edu.br/eventos')
       .then((resposta) => resposta.json())
       .then((dados) => {
-        setEventos(dados);
-        setCarregando(false);
+        dispatch({ tipo: 'FETCH_SUCESSO', payload: dados });
       })
       .catch((e) => {
-        setErro(e.message);
+        dispatch({ tipo: 'FETCH_ERRO', payload: e.message });
       });
   }, []);
 
@@ -59,12 +76,12 @@ export default function TelaEventos({ navigation }) {
         data={eventosFiltrados}
         keyExtractor={(itemLista) => String(itemLista.id)}
         renderItem={({ item }) => (
-  <CartaoEvento
-    evento={item}
-    aoInscrever={() => inscrever(item)}
-    aoAbrir={() => navigation.navigate('Detalhe', { eventoId: item.id, eventos })}
-  />
-)}
+          <CartaoEvento
+            evento={item}
+            aoInscrever={() => inscrever(item)}
+            aoAbrir={() => navigation.navigate('Detalhe', { eventoId: item.id, eventos })}
+          />
+        )}
       />
     </View>
   );
