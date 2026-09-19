@@ -3,6 +3,7 @@ import {
   View, Text, TextInput, FlatList, ActivityIndicator, StyleSheet,
 } from 'react-native';
 import { AppContexto } from '../contextos/AppContexto';
+import { InscricoesContexto } from '../contextos/InscricoesContexto';
 import CartaoEvento from '../componentes/CartaoEvento';
 
 const estadoInicial = {
@@ -23,7 +24,8 @@ function eventosReducer(estado, acao) {
 }
 
 export default function TelaEventos({ navigation }) {
-  const { temaEscuro, inscricoes, inscrever: inscreverNoContexto } = useContext(AppContexto);
+  const { temaEscuro } = useContext(AppContexto);
+  const { inscricoes, inscrever: inscreverNoContexto } = useContext(InscricoesContexto);
 
   const [estadoEventos, dispatch] = useReducer(eventosReducer, estadoInicial);
   const { eventos, carregando, erro } = estadoEventos;
@@ -48,7 +50,6 @@ export default function TelaEventos({ navigation }) {
       });
   }, []);
 
-  // R6: Funções memorizadas para manter referência estável entre renderizações
   const handleInscrever = useCallback((evento) => {
     inscreverNoContexto(evento);
     setEventoSelecionado(evento);

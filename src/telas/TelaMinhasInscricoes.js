@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { View, Text, FlatList, Button, StyleSheet } from 'react-native';
-import { AppContexto } from '../contextos/AppContexto';
+import { InscricoesContexto } from '../contextos/InscricoesContexto';
 
 export default function TelaMinhasInscricoes() {
-  const { inscricoes, cancelarInscricao } = useContext(AppContexto);
+  const { inscricoes, cancelarInscricao } = useContext(InscricoesContexto);
 
   console.log('[render] TelaMinhasInscricoes');
 
